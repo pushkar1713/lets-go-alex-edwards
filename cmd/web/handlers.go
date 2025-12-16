@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func home(w http.ResponseWriter, r *http.Request){
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go from Mac")
 	// w.Write([]byte("hello from puhskar"))
 
@@ -20,24 +19,24 @@ func home(w http.ResponseWriter, r *http.Request){
 	}
 
 	ts, err := template.ParseFiles(files...)
-	if(err != nil){
-		log.Print(err.Error())
+	if err != nil {
+		app.logger.Error(err.Error())
 		http.Error(w, "Some error occured", http.StatusInternalServerError)
 		return
 	}
 	// err = ts.Execute(w, nil)
 	err = ts.ExecuteTemplate(w, "base", nil)
-	if(err != nil){
-		log.Print(err.Error())
+	if err != nil {
+		app.logger.Error(err.Error())
 		http.Error(w, "Some error occured", http.StatusInternalServerError)
 		return
 	}
 }
 
-func snippetView(w http.ResponseWriter, r *http.Request){
+func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	idInt, err := strconv.Atoi(id)
-	if(err != nil || id < "1"){
+	if err != nil || id < "1" {
 		http.NotFound(w, r)
 		return
 	}
@@ -45,12 +44,12 @@ func snippetView(w http.ResponseWriter, r *http.Request){
 	w.Write([]byte(msg))
 }
 
-func createSnippet(w http.ResponseWriter, r *http.Request){
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	// w.Write([]byte("create a new snippet here"))
 	io.WriteString(w, "create a new snippet here")
 }
 
-func saveSnippet(w http.ResponseWriter, r *http.Request){
+func (app *application) saveSnippet(w http.ResponseWriter, r *http.Request) {
 	data := r.Body
 	message := fmt.Sprintf("this is the response body we are saving this %s", data)
 	// w.WriteHeader(201)
