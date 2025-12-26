@@ -20,15 +20,13 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, "Some error occured", http.StatusInternalServerError)
+		app.serveError(w, r, err)
 		return
 	}
 	// err = ts.Execute(w, nil)
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, "Some error occured", http.StatusInternalServerError)
+		app.serveError(w, r, err)
 		return
 	}
 }
