@@ -18,7 +18,23 @@ type SnippetModel struct {
 }
 
 func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
-	return 0, nil
+
+	stmt := `INSERT INTO snippets (title, content, created, expires)
+	VALUES ($1, $2, NOW(), NOW() + ($3 * INTERVAL '1 day'))`
+
+	_, err := m.DB.Exec(stmt, title, content, expires)
+	if err != nil {
+		return 0, err
+	}
+
+	// not supported by psql
+	// id, err := result.LastInsertId()
+	// if err != nil {
+	// 	return 0, err
+	// }
+
+	// return int(id), nil
+	return 1, nil
 }
 
 // This will return a specific snippet based on its id.
