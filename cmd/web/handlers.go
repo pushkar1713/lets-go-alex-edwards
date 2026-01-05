@@ -1,11 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
 	"net/http"
 	"strconv"
+
+	"snippetbox.pushkar1713.dev/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -38,8 +41,18 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	msg := fmt.Sprintf("this is the snippet for the id %d...", idInt)
-	w.Write([]byte(msg))
+
+	snippets, err := app.snippets.Get(idInt)
+
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			http.NotFound(w, r)
+		} else {
+			app.serveError(w, r, err)
+		}
+		return
+	}
+	fmt.Fprintf(w, "%+v", snippets)
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
