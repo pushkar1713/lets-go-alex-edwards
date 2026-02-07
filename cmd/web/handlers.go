@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"strconv"
@@ -16,35 +15,44 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// w.Write([]byte("hello from puhskar"))
 	//
 
-	// snippets, err := app.snippets.Latest()
+	snippets, err := app.snippets.Latest()
 
+	if err != nil {
+		app.serveError(w, r, err)
+		return
+	}
+
+	// for _, snippet := range snippets {
+	// 	fmt.Fprintf(w, "%v\n", snippet)
+	// }
+	//
+	// files := []string{
+	// 	"./ui/html/base.html",
+	// 	"./ui/html/partials/nav.html",
+	// 	"./ui/html/pages/home.html",
+	// }
+
+	// data := templateData{
+	// 	Snippets: snippets,
+	// }
+
+	// ts, err := template.ParseFiles(files...)
 	// if err != nil {
 	// 	app.serveError(w, r, err)
 	// 	return
 	// }
 
-	// for _, snippet := range snippets {
-	// 	fmt.Fprintf(w, "%v\n", snippet)
+	// // err = ts.Execute(w, nil)
+	// err = ts.ExecuteTemplate(w, "base", data)
+	// if err != nil {
+	// 	app.serveError(w, r, err)
+	// 	return
 	// }
 
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/partials/nav.html",
-		"./ui/html/pages/home.html",
-	}
+	app.render(w, r, http.StatusOK, "home.html", templateData{
+		Snippets: snippets,
+	})
 
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serveError(w, r, err)
-		return
-	}
-
-	// err = ts.Execute(w, nil)
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serveError(w, r, err)
-		return
-	}
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -66,29 +74,33 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// fmt.Fprintf(w, "%+v", snippets)
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/partials/nav.html",
-		"./ui/html/pages/home.html",
-		"./ui/html/view.html",
-	}
+	// files := []string{
+	// 	"./ui/html/base.html",
+	// 	"./ui/html/partials/nav.html",
+	// 	"./ui/html/pages/home.html",
+	// 	"./ui/html/view.html",
+	// }
 
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serveError(w, r, err)
-		return
-	}
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.serveError(w, r, err)
+	// 	return
+	// }
 
-	data := templateData{
+	// data := templateData{
+	// 	Snippet: snippets,
+	// }
+
+	// // err = ts.Execute(w, nil)
+	// err = ts.ExecuteTemplate(w, "base", data)
+	// if err != nil {
+	// 	app.serveError(w, r, err)
+	// 	return
+	// }
+	//
+	app.render(w, r, http.StatusOK, "view.html", templateData{
 		Snippet: snippets,
-	}
-
-	// err = ts.Execute(w, nil)
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serveError(w, r, err)
-		return
-	}
+	})
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
